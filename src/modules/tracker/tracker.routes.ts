@@ -1,0 +1,19 @@
+import { Router } from "express";
+import * as c from "./tracker.controller";
+
+const router = Router();
+
+router.get("/session", c.getSession);
+router.post("/clock-in", c.clockIn);
+router.post("/pause", c.pause);
+router.post("/resume", c.resume);
+router.post("/clock-out", c.clockOut);
+router.post("/abandon", c.abandonSession);
+
+router.get("/week", c.getWeekReport);
+router.get("/week/export", c.exportWeekReport);
+
+router.get("/weekly-report", c.getWeeklyReport);
+router.put("/weekly-report", c.upsertWeeklyReport);
+
+export default router;

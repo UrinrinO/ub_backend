@@ -1,0 +1,70 @@
+import type { Request, Response } from "express";
+import * as svc from "./tracker.service";
+import { buildMarkdownReport } from "./tracker.report";
+
+const USER_ID = "single-user"; // V1: hardcode (or create user row on boot)
+
+export async function getSession(_: Request, res: Response) {
+  const session = await svc.getActiveSession(USER_ID);
+  res.json(session ?? null);
+}
+
+export async function clockIn(req: Request, res: Response) {
+  const { category } = req.body;
+  const session = await svc.clockIn(USER_ID, category);
+  res.json(session);
+}
+
+export async function pause(_: Request, res: Response) {
+  const session = await svc.pause(USER_ID);
+  res.json(session);
+}
+
+export async function resume(_: Request, res: Response) {
+  const session = await svc.resume(USER_ID);
+  res.json(session);
+}
+
+export async function clockOut(req: Request, res: Response) {
+  const { workedOn, output, difficulty, focus } = req.body;
+  const session = await svc.clockOut(USER_ID, { workedOn, output, difficulty, focus });
+  res.json(session);
+}
+
+export async function abandonSession(_: Request, res: Response) {
+  await svc.abandonSession(USER_ID);
+  res.json({ ok: true });
+}
+
+export async function getWeekReport(req: Request, res: Response) {
+  const start = String(req.query.start); // YYYY-MM-DD (Monday, ideally)
+  const report = await svc.getWeekReport(USER_ID, start);
+  res.json(report);
+}
+
+export async function getWeeklyReport(req: Request, res: Response) {
+  const week = String(req.query.week);
+  const [sessions, report] = await Promise.all([
+    svc.getWeekReport(USER_ID, week),
+    svc.getWeeklyReport(week),
+  ]);
+  res.json({ sessions, report: report ?? null });
+}
+
+export async function upsertWeeklyReport(req: Request, res: Response) {
+  const week = String(req.query.week);
+  const { weekNumber, notes } = req.body;
+  const report = await svc.upsertWeeklyReport(week, weekNumber, notes ?? {});
+  res.json(report);
+}
+
+export async function exportWeekReport(req: Request, res: Response) {
+  const start = String(req.query.start);
+  const format = (String(req.query.format || "md") as "md" | "text");
+
+  const report = await svc.getWeekReport(USER_ID, start);
+  const md = buildMarkdownReport(report);
+
+  if (format === "text") return res.type("text/plain").send(md);
+  return res.type("text/markdown").send(md);
+}
