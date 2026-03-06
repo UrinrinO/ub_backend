@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import trackerRoutes from "./modules/tracker/tracker.routes";
+import blogRoutes from "./modules/blog/blog.routes";
+import projectsRoutes from "./modules/projects/projects.routes";
 
 const app = express();
 
@@ -26,5 +28,7 @@ app.use(
 app.use(express.json());
 app.get("/api/health", (_, res) => res.json({ ok: true }));
 app.use("/api/tracker", trackerRoutes);
+app.use("/api/blog", blogRoutes);
+app.use("/api/projects", projectsRoutes);
 
 export default app;
