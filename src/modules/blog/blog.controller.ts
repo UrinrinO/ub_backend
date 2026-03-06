@@ -14,7 +14,7 @@ export async function listPosts(req: Request, res: Response) {
 
 export async function getPost(req: Request, res: Response) {
   try {
-    const post = await blogService.getPost(req.params.id);
+    const post = await blogService.getPost(req.params.id as string);
     if (!post) return res.status(404).json({ error: "Post not found" });
     res.json(post);
   } catch (err) {
@@ -37,7 +37,7 @@ export async function createPost(req: Request, res: Response) {
 
 export async function updatePost(req: Request, res: Response) {
   try {
-    const post = await blogService.updatePost(req.params.id, req.body);
+    const post = await blogService.updatePost(req.params.id as string, req.body);
     res.json(post);
   } catch (err) {
     res.status(500).json({ error: "Failed to update post" });
@@ -46,7 +46,7 @@ export async function updatePost(req: Request, res: Response) {
 
 export async function deletePost(req: Request, res: Response) {
   try {
-    await blogService.deletePost(req.params.id);
+    await blogService.deletePost(req.params.id as string);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete post" });

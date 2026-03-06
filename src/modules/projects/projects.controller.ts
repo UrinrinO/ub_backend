@@ -14,7 +14,7 @@ export async function listProjects(req: Request, res: Response) {
 
 export async function getProject(req: Request, res: Response) {
   try {
-    const project = await projectsService.getProject(req.params.id);
+    const project = await projectsService.getProject(req.params.id as string);
     if (!project) return res.status(404).json({ error: "Project not found" });
     res.json(project);
   } catch (err) {
@@ -33,7 +33,7 @@ export async function createProject(req: Request, res: Response) {
 
 export async function updateProject(req: Request, res: Response) {
   try {
-    const project = await projectsService.updateProject(req.params.id, req.body);
+    const project = await projectsService.updateProject(req.params.id as string, req.body);
     res.json(project);
   } catch (err) {
     res.status(500).json({ error: "Failed to update project" });
@@ -42,7 +42,7 @@ export async function updateProject(req: Request, res: Response) {
 
 export async function deleteProject(req: Request, res: Response) {
   try {
-    await projectsService.deleteProject(req.params.id);
+    await projectsService.deleteProject(req.params.id as string);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete project" });
