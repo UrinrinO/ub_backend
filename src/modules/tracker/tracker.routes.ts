@@ -16,4 +16,9 @@ router.get("/week/export", c.exportWeekReport);
 router.get("/weekly-report", c.getWeeklyReport);
 router.put("/weekly-report", c.upsertWeeklyReport);
 
+router.get("/categories", c.getCategories);
+router.post("/categories", c.createCategory);
+router.put("/categories/:id", c.updateCategory);
+router.delete("/categories/:id", c.deleteCategory);
+
 export default router;

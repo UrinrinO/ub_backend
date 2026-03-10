@@ -58,6 +58,30 @@ export async function upsertWeeklyReport(req: Request, res: Response) {
   res.json(report);
 }
 
+export async function getCategories(_: Request, res: Response) {
+  const cats = await svc.getAllCategories();
+  res.json(cats);
+}
+
+export async function createCategory(req: Request, res: Response) {
+  const { key, label, targetMinutes } = req.body;
+  const cat = await svc.createCategory({ key, label, targetMinutes: Number(targetMinutes) || 0 });
+  res.json(cat);
+}
+
+export async function updateCategory(req: Request, res: Response) {
+  const id = String(req.params.id);
+  const { label, targetMinutes, active, order } = req.body;
+  const cat = await svc.updateCategory(id, { label, targetMinutes, active, order });
+  res.json(cat);
+}
+
+export async function deleteCategory(req: Request, res: Response) {
+  const id = String(req.params.id);
+  await svc.deleteCategory(id);
+  res.json({ ok: true });
+}
+
 export async function exportWeekReport(req: Request, res: Response) {
   const start = String(req.query.start);
   const format = (String(req.query.format || "md") as "md" | "text");

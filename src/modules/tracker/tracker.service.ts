@@ -1,9 +1,53 @@
 import { prisma } from "../../lib/prisma";
-import { Category, SessionStatus } from "@prisma/client";
+import { SessionStatus } from "@prisma/client";
 
-function parseCategory(input: string): Category {
+const DEFAULT_CATEGORIES = [
+  { key: "JOB_APPLICATIONS", label: "Job Applications", targetMinutes: 120, order: 0 },
+  { key: "ALGORITHMS",       label: "Algorithms",        targetMinutes: 300, order: 1 },
+  { key: "ML_THEORY",        label: "ML Theory",          targetMinutes: 180, order: 2 },
+  { key: "ML_PLATFORM",      label: "ML Platform",        targetMinutes: 180, order: 3 },
+  { key: "SYSTEM_DESIGN",    label: "System Design",      targetMinutes: 60,  order: 4 },
+  { key: "READING",          label: "Reading",            targetMinutes: 0,   order: 5 },
+  { key: "MOCK_INTERVIEW",   label: "Mock Interview",     targetMinutes: 0,   order: 6 },
+  { key: "MLOPS_CERT",       label: "MLOps Cert",         targetMinutes: 180, order: 7 },
+];
+
+export async function seedDefaultCategories() {
+  const count = await prisma.trackerCategory.count();
+  if (count > 0) return;
+  await prisma.trackerCategory.createMany({ data: DEFAULT_CATEGORIES });
+}
+
+export async function getCategories() {
+  return prisma.trackerCategory.findMany({
+    where: { active: true },
+    orderBy: { order: "asc" },
+  });
+}
+
+export async function getAllCategories() {
+  return prisma.trackerCategory.findMany({ orderBy: { order: "asc" } });
+}
+
+export async function createCategory(data: { key: string; label: string; targetMinutes: number }) {
+  const key = data.key.toUpperCase().replace(/\s+/g, "_");
+  const maxOrder = await prisma.trackerCategory.aggregate({ _max: { order: true } });
+  return prisma.trackerCategory.create({
+    data: { key, label: data.label, targetMinutes: data.targetMinutes, order: (maxOrder._max.order ?? 0) + 1 },
+  });
+}
+
+export async function updateCategory(id: string, data: { label?: string; targetMinutes?: number; active?: boolean; order?: number }) {
+  return prisma.trackerCategory.update({ where: { id }, data });
+}
+
+export async function deleteCategory(id: string) {
+  return prisma.trackerCategory.delete({ where: { id } });
+}
+
+function parseCategory(input: string): string {
   if (!input) throw new Error("category is required");
-  return input as Category;
+  return input;
 }
 
 function weekRange(startYYYYMMDD: string) {

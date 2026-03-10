@@ -13,14 +13,15 @@ enum SessionStatus {
   ABANDONED
 }
 
-enum Category {
-  ALGORITHMS
-  ML_THEORY
-  ML_PLATFORM
-  SYSTEM_DESIGN
-  JOB_APPLICATIONS
-  READING
-  MOCK_INTERVIEW
+model TrackerCategory {
+  id            String   @id @default(cuid())
+  key           String   @unique  // e.g. "ALGORITHMS"
+  label         String            // e.g. "Algorithms"
+  targetMinutes Int      @default(0)
+  active        Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model User {
@@ -35,7 +36,7 @@ model WorkSession {
   userId      String
   user        User          @relation(fields: [userId], references: [id])
 
-  category    Category
+  category    String
   status      SessionStatus @default(ACTIVE)
 
   startedAt   DateTime      @default(now())
@@ -108,4 +109,34 @@ model WeeklyReport {
   notes      Json     @default("{}")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model NotesSeries {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  title       String
+  tagline     String      @default("")
+  description String      @default("")
+  tags        String[]
+  published   Boolean     @default(false)
+  order       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  parts       NotesPart[]
+}
+
+model NotesPart {
+  id         String      @id @default(cuid())
+  slug       String
+  seriesId   String
+  series     NotesSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  title      String
+  content    String      @default("")
+  partNumber Int
+  published  Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@unique([seriesId, slug])
+  @@index([seriesId, partNumber])
 }

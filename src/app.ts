@@ -3,6 +3,7 @@ import cors from "cors";
 import trackerRoutes from "./modules/tracker/tracker.routes";
 import blogRoutes from "./modules/blog/blog.routes";
 import projectsRoutes from "./modules/projects/projects.routes";
+import notesRoutes from "./modules/notes/notes.routes";
 
 const app = express();
 
@@ -30,5 +31,6 @@ app.get("/api/health", (_, res) => res.json({ ok: true }));
 app.use("/api/tracker", trackerRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/projects", projectsRoutes);
+app.use("/api/notes", notesRoutes);
 
 export default app;
