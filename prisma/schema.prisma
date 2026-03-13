@@ -52,6 +52,7 @@ model WorkSession {
   minMinutes  Int           @default(25)
 
   segments    WorkSegment[]
+  notes       SessionNote[]
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -71,6 +72,27 @@ model WorkSegment {
   createdAt  DateTime    @default(now())
 
   @@index([sessionId, startTime])
+}
+
+model SessionNote {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   WorkSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  content   String
+  url       String?
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId])
+}
+
+model Reminder {
+  id        String   @id @default(cuid())
+  title     String
+  notes     String?
+  deadline  DateTime
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Project {

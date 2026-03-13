@@ -82,6 +82,25 @@ export async function deleteCategory(req: Request, res: Response) {
   res.json({ ok: true });
 }
 
+export async function addSessionNote(req: Request, res: Response) {
+  const sessionId = String(req.params.sessionId);
+  const { content, url } = req.body;
+  const note = await svc.addSessionNote(sessionId, { content, url });
+  res.json(note);
+}
+
+export async function getSessionNotes(req: Request, res: Response) {
+  const sessionId = String(req.params.sessionId);
+  const notes = await svc.getSessionNotes(sessionId);
+  res.json(notes);
+}
+
+export async function deleteSessionNote(req: Request, res: Response) {
+  const id = String(req.params.id);
+  await svc.deleteSessionNote(id);
+  res.json({ ok: true });
+}
+
 export async function exportWeekReport(req: Request, res: Response) {
   const start = String(req.query.start);
   const format = (String(req.query.format || "md") as "md" | "text");

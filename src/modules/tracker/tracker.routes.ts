@@ -21,4 +21,8 @@ router.post("/categories", c.createCategory);
 router.put("/categories/:id", c.updateCategory);
 router.delete("/categories/:id", c.deleteCategory);
 
+router.get("/sessions/:sessionId/notes", c.getSessionNotes);
+router.post("/sessions/:sessionId/notes", c.addSessionNote);
+router.delete("/notes/:id", c.deleteSessionNote);
+
 export default router;

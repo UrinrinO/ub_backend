@@ -4,6 +4,7 @@ import trackerRoutes from "./modules/tracker/tracker.routes";
 import blogRoutes from "./modules/blog/blog.routes";
 import projectsRoutes from "./modules/projects/projects.routes";
 import notesRoutes from "./modules/notes/notes.routes";
+import remindersRoutes from "./modules/reminders/reminders.routes";
 
 const app = express();
 
@@ -32,5 +33,6 @@ app.use("/api/tracker", trackerRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/projects", projectsRoutes);
 app.use("/api/notes", notesRoutes);
+app.use("/api/reminders", remindersRoutes);
 
 export default app;

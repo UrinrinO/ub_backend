@@ -77,8 +77,26 @@ export async function getActiveSession(userId: string) {
       userId,
       status: { in: [SessionStatus.ACTIVE, SessionStatus.PAUSED] },
     },
-    include: { segments: { orderBy: { startTime: "asc" } } },
+    include: {
+      segments: { orderBy: { startTime: "asc" } },
+      notes: { orderBy: { createdAt: "asc" } },
+    },
   });
+}
+
+export async function addSessionNote(sessionId: string, data: { content: string; url?: string }) {
+  return prisma.sessionNote.create({ data: { sessionId, ...data } });
+}
+
+export async function getSessionNotes(sessionId: string) {
+  return prisma.sessionNote.findMany({
+    where: { sessionId },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
+export async function deleteSessionNote(id: string) {
+  return prisma.sessionNote.delete({ where: { id } });
 }
 
 export async function clockIn(userId: string, categoryInput: string) {
@@ -243,7 +261,7 @@ export async function getWeekReport(userId: string, startYYYYMMDD: string) {
       startedAt: { gte: start, lt: end },
       status: SessionStatus.COMPLETED,
     },
-    include: { segments: true },
+    include: { segments: true, notes: { orderBy: { createdAt: "asc" } } },
     orderBy: { startedAt: "asc" },
   });
 
@@ -286,6 +304,7 @@ export async function getWeekReport(userId: string, startYYYYMMDD: string) {
       output: s.output,
       difficulty: s.difficulty,
       focus: s.focus,
+      notes: s.notes,
       minutes: s.segments.reduce((sum, seg) => {
         if (!seg.endTime) return sum;
         return sum + minutesBetween(seg.startTime, seg.endTime);
