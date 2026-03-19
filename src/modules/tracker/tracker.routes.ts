@@ -23,6 +23,7 @@ router.delete("/categories/:id", c.deleteCategory);
 
 router.get("/sessions/:sessionId/notes", c.getSessionNotes);
 router.post("/sessions/:sessionId/notes", c.addSessionNote);
+router.put("/sessions/:sessionId/duration", c.adjustSessionDuration);
 router.delete("/notes/:id", c.deleteSessionNote);
 
 export default router;

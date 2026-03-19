@@ -236,6 +236,60 @@ export async function clockOut(
   });
 }
 
+export async function adjustSessionDuration(
+  userId: string,
+  sessionId: string,
+  minutes: number,
+) {
+  const last = await prisma.workSession.findFirst({
+    where: { userId, status: SessionStatus.COMPLETED },
+    include: {
+      segments: { orderBy: { startTime: "asc" } },
+      durationEdits: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
+    orderBy: { endedAt: "desc" },
+  });
+
+  if (!last) throw new Error("No completed sessions to adjust.");
+  if (last.id !== sessionId)
+    throw new Error("Can only adjust the most recent completed session.");
+
+  if (!Number.isInteger(minutes) || minutes < 0)
+    throw new Error("minutes must be a non-negative integer.");
+
+  if (minutes < last.minMinutes)
+    throw new Error(
+      `Minimum session length is ${last.minMinutes} minutes. Requested: ${minutes}m`,
+    );
+
+  // Use the latest edit as the current effective duration if one exists
+  const previousMinutes =
+    last.durationEdits[0]?.newMinutes ??
+    last.segments.reduce((sum, seg) => {
+      if (!seg.endTime) return sum;
+      return sum + minutesBetween(seg.startTime, seg.endTime);
+    }, 0);
+
+  if (minutes === previousMinutes) return last;
+
+  const newEndedAt = new Date(last.startedAt.getTime() + minutes * 60_000);
+  if (newEndedAt > new Date()) throw new Error("Cannot set duration into the future.");
+
+  await prisma.sessionDurationEdit.create({
+    data: { sessionId, previousMinutes, newMinutes: minutes },
+  });
+
+  return prisma.workSession.update({
+    where: { id: sessionId },
+    data: { endedAt: newEndedAt },
+    include: {
+      segments: { orderBy: { startTime: "asc" } },
+      notes: true,
+      durationEdits: { orderBy: { createdAt: "desc" } },
+    },
+  });
+}
+
 export async function getWeeklyReport(weekStart: string) {
   return prisma.weeklyReport.findUnique({ where: { weekStart } });
 }
@@ -261,7 +315,11 @@ export async function getWeekReport(userId: string, startYYYYMMDD: string) {
       startedAt: { gte: start, lt: end },
       status: SessionStatus.COMPLETED,
     },
-    include: { segments: true, notes: { orderBy: { createdAt: "asc" } } },
+    include: {
+      segments: true,
+      notes: { orderBy: { createdAt: "asc" } },
+      durationEdits: { orderBy: { createdAt: "asc" } },
+    },
     orderBy: { startedAt: "asc" },
   });
 
@@ -271,10 +329,13 @@ export async function getWeekReport(userId: string, startYYYYMMDD: string) {
   let longestMinutes = 0;
 
   for (const s of sessions) {
-    const minutes = s.segments.reduce((sum, seg) => {
-      if (!seg.endTime) return sum;
-      return sum + minutesBetween(seg.startTime, seg.endTime);
-    }, 0);
+    const latestEdit = s.durationEdits[s.durationEdits.length - 1];
+    const minutes = latestEdit
+      ? latestEdit.newMinutes
+      : s.segments.reduce((sum, seg) => {
+          if (!seg.endTime) return sum;
+          return sum + minutesBetween(seg.startTime, seg.endTime);
+        }, 0);
 
     totalMinutes += minutes;
     longestMinutes = Math.max(longestMinutes, minutes);
@@ -305,10 +366,16 @@ export async function getWeekReport(userId: string, startYYYYMMDD: string) {
       difficulty: s.difficulty,
       focus: s.focus,
       notes: s.notes,
-      minutes: s.segments.reduce((sum, seg) => {
-        if (!seg.endTime) return sum;
-        return sum + minutesBetween(seg.startTime, seg.endTime);
-      }, 0),
+      minutes: s.durationEdits[s.durationEdits.length - 1]?.newMinutes
+        ?? s.segments.reduce((sum, seg) => {
+          if (!seg.endTime) return sum;
+          return sum + minutesBetween(seg.startTime, seg.endTime);
+        }, 0),
+      durationEdits: s.durationEdits?.map((e) => ({
+        previousMinutes: e.previousMinutes,
+        newMinutes: e.newMinutes,
+        createdAt: e.createdAt,
+      })),
     })),
   };
 }

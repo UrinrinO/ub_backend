@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
 import trackerRoutes from "./modules/tracker/tracker.routes";
 import blogRoutes from "./modules/blog/blog.routes";
@@ -34,5 +34,10 @@ app.use("/api/blog", blogRoutes);
 app.use("/api/projects", projectsRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/reminders", remindersRoutes);
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  res.status(500).json({ error: err.message ?? "Internal server error" });
+});
 
 export default app;

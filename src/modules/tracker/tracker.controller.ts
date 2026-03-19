@@ -101,6 +101,13 @@ export async function deleteSessionNote(req: Request, res: Response) {
   res.json({ ok: true });
 }
 
+export async function adjustSessionDuration(req: Request, res: Response) {
+  const sessionId = String(req.params.sessionId);
+  const minutes = Number(req.body.minutes);
+  const session = await svc.adjustSessionDuration(USER_ID, sessionId, minutes);
+  res.json(session);
+}
+
 export async function exportWeekReport(req: Request, res: Response) {
   const start = String(req.query.start);
   const format = (String(req.query.format || "md") as "md" | "text");
