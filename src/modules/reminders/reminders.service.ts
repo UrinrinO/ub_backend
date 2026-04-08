@@ -4,13 +4,13 @@ export function getReminders() {
   return prisma.reminder.findMany({ orderBy: { deadline: "asc" } });
 }
 
-export function createReminder(data: { title: string; notes?: string; deadline: Date }) {
+export function createReminder(data: { type?: string; title: string; notes?: string; subject?: string; url?: string; deadline: Date }) {
   return prisma.reminder.create({ data });
 }
 
 export function updateReminder(
   id: string,
-  data: { title?: string; notes?: string; deadline?: Date; completed?: boolean },
+  data: { title?: string; notes?: string; subject?: string; url?: string; deadline?: Date; completed?: boolean },
 ) {
   return prisma.reminder.update({ where: { id }, data });
 }

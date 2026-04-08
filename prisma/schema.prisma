@@ -99,8 +99,11 @@ model SessionDurationEdit {
 
 model Reminder {
   id        String   @id @default(cuid())
+  type      String   @default("REMINDER") // "REMINDER" | "EXAM"
   title     String
   notes     String?
+  subject   String?
+  url       String?
   deadline  DateTime
   completed Boolean  @default(false)
   createdAt DateTime @default(now())
