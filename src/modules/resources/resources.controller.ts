@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import * as svc from "./resources.service";
-import type { ResourceType, ResourceStatus } from "@prisma/client";
+import type { ResourceType } from "@prisma/client";
 
 export async function list(req: Request, res: Response) {
   const { category, completed, type } = req.query;
