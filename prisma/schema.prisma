@@ -177,3 +177,66 @@ model NotesPart {
   @@unique([seriesId, slug])
   @@index([seriesId, partNumber])
 }
+
+model ResourceCategory {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  label     String
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ResourceType {
+  INSTAGRAM
+  YOUTUBE
+  ARTICLE
+  LEETCODE
+  OTHER
+}
+
+model ResourceNote {
+  id         String   @id @default(cuid())
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([resourceId])
+}
+
+model ResourceTask {
+  id         String   @id @default(cuid())
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  title      String
+  notes      String?
+  completed  Boolean  @default(false)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([resourceId])
+}
+
+model Resource {
+  id          String         @id @default(cuid())
+  title       String
+  url         String?
+  description String?
+  category    String         // e.g. "ALGORITHMS", "INTERVIEWS", "SYSTEM_DESIGN"
+  type        ResourceType   @default(OTHER)
+  completed   Boolean        @default(false)
+  tags        String[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  tasks       ResourceTask[]
+  notes       ResourceNote[]
+
+  @@index([category])
+  @@index([completed])
+  @@index([type])
+}
