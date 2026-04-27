@@ -9,6 +9,11 @@ export async function getSession(_: Request, res: Response) {
   res.json(session ?? null);
 }
 
+export async function getAllTimeStats(_: Request, res: Response) {
+  const stats = await svc.getAllTimeStats(USER_ID);
+  res.json(stats);
+}
+
 export async function clockIn(req: Request, res: Response) {
   const { category } = req.body;
   const session = await svc.clockIn(USER_ID, category);

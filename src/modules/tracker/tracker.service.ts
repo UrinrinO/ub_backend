@@ -379,3 +379,39 @@ export async function getWeekReport(userId: string, startYYYYMMDD: string) {
     })),
   };
 }
+
+export async function getAllTimeStats(userId: string) {
+  const sessions = await prisma.workSession.findMany({
+    where: {
+      userId,
+      status: SessionStatus.COMPLETED,
+    },
+    include: {
+      segments: true,
+      durationEdits: { orderBy: { createdAt: "asc" } },
+    },
+  });
+
+  const perCategory: Record<string, number> = {};
+  let totalMinutes = 0;
+
+  for (const s of sessions) {
+    const latestEdit = s.durationEdits[s.durationEdits.length - 1];
+    const minutes = latestEdit
+      ? latestEdit.newMinutes
+      : s.segments.reduce((sum, seg) => {
+          if (!seg.endTime) return sum;
+          return sum + minutesBetween(seg.startTime, seg.endTime);
+        }, 0);
+
+    totalMinutes += minutes;
+
+    const key = s.category;
+    perCategory[key] = (perCategory[key] ?? 0) + minutes;
+  }
+
+  return {
+    totalMinutes,
+    perCategory,
+  };
+}

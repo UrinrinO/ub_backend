@@ -13,6 +13,8 @@ router.post("/abandon", c.abandonSession);
 router.get("/week", c.getWeekReport);
 router.get("/week/export", c.exportWeekReport);
 
+router.get("/all-time", c.getAllTimeStats);
+
 router.get("/weekly-report", c.getWeeklyReport);
 router.put("/weekly-report", c.upsertWeeklyReport);
 
