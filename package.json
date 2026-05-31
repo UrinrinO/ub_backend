@@ -20,6 +20,7 @@
     "express": "^5.2.1",
     "pg": "^8.18.0",
     "prisma": "^7.4.1",
+    "resend": "^6.12.4",
     "typescript": "^5.9.3"
   },
   "devDependencies": {

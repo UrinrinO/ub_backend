@@ -6,6 +6,7 @@ import projectsRoutes from "./modules/projects/projects.routes";
 import notesRoutes from "./modules/notes/notes.routes";
 import remindersRoutes from "./modules/reminders/reminders.routes";
 import resourcesRoutes from "./modules/resources/resources.routes";
+import contactRoutes from "./modules/contact/contact.routes";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/api/projects", projectsRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/reminders", remindersRoutes);
 app.use("/api/resources", resourcesRoutes);
+app.use("/api/contact", contactRoutes);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
