@@ -106,6 +106,7 @@ model Reminder {
   url       String?
   deadline  DateTime
   completed Boolean  @default(false)
+  paused    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -23,7 +23,7 @@ export async function create(req: Request, res: Response) {
 
 export async function update(req: Request, res: Response) {
   const id = String(req.params.id);
-  const { title, notes, subject, url, deadline, completed } = req.body;
+  const { title, notes, subject, url, deadline, completed, paused } = req.body;
   const reminder = await svc.updateReminder(id, {
     title: title?.trim(),
     notes: notes?.trim(),
@@ -31,6 +31,7 @@ export async function update(req: Request, res: Response) {
     url: url?.trim(),
     deadline: deadline ? new Date(deadline) : undefined,
     completed,
+    paused,
   });
   res.json(reminder);
 }

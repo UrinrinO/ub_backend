@@ -10,7 +10,7 @@ export function createReminder(data: { type?: string; title: string; notes?: str
 
 export function updateReminder(
   id: string,
-  data: { title?: string; notes?: string; subject?: string; url?: string; deadline?: Date; completed?: boolean },
+  data: { title?: string; notes?: string; subject?: string; url?: string; deadline?: Date; completed?: boolean; paused?: boolean },
 ) {
   return prisma.reminder.update({ where: { id }, data });
 }
